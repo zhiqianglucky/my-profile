@@ -1,24 +1,35 @@
-"""An example of constructing a profile with two ARM64 nodes connected by a LAN.
+"""An example of constructing a profile with a single Xen VM.
 
 Instructions:
-Wait for the profile instance to start, and then log in to either host via the
-ssh ports specified below.
+Wait for the profile instance to start, and then log in to the VM via the
+ssh port specified below.  (Note that in this case, you will need to access
+the VM through a high port on the physical host, since we have not requested
+a public IP address for the VM itself.)
 """
 
 import geni.portal as portal
 import geni.rspec.pg as rspec
 
+# Create a Request object to start building the RSpec.
 request = portal.context.makeRequestRSpec()
+ 
+# Create a XenVM
+node = request.XenVM("node")
 
-# Create two raw "PC" nodes
-node1 = request.RawPC("node1")
-node2 = request.RawPC("node2")
+# Ask for two cores
+node.cores = 2
+# Ask for 2GB of ram
+node.ram   = 2048
+# Add an extra 8GB of space on the primary disk.
+# NOTE: Use fdisk, the extra space is in the 4th DOS partition,
+#       you will need to create a filesystem and mount it. 
+node.disk  = 8
 
-# Set each of the two to specifically request "m400" nodes, which in CloudLab, are ARM
-node1.hardware_type = "m400"
-node2.hardware_type = "m400"
+# Alternate method; request an ephemeral blockstore mounted at /mydata. 
+# NOTE: Comment out the above line (node.disk) if you do it this way. 
+#bs = node.Blockstore("bs", "/mydata")
+#bs.size = "8GB"
+#bs.placement = "nonsysvol"
 
-# Create a link between them
-link1 = request.Link(members = [node1, node2])
-
+# Print the RSpec to the enclosing page.
 portal.context.printRequestRSpec()
