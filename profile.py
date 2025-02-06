@@ -1,18 +1,20 @@
-"""An example of constructing a profile with a single raw PC.
+"""An example of constructing a profile with two VMs connected by a LAN.
 
 Instructions:
-Wait for the profile instance to start, and then log in to the host via the
-ssh port specified below.
+Wait for the profile instance to start, and then log in to either VM via the
+ssh ports specified below.
 """
 
 import geni.portal as portal
 import geni.rspec.pg as rspec
 
-# Create a Request object to start building the RSpec.
 request = portal.context.makeRequestRSpec()
- 
-# Create a raw PC
-node = request.RawPC("node")
 
-# Print the RSpec to the enclosing page.
+# Create two XenVM nodes.
+node1 = request.XenVM("node1")
+node2 = request.XenVM("node2")
+
+# Create a link between them
+link1 = request.Link(members = [node1,node2])
+
 portal.context.printRequestRSpec()
