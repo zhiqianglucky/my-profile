@@ -1,27 +1,21 @@
-"""This is a trivial example of a gitrepo-based profile; The profile source code and other software, documentation, etc. are stored in in a publicly accessible GIT repository (say, github.com). When you instantiate this profile, the repository is cloned to all of the nodes in your experiment, to `/local/repository`. 
-
-This particular profile is a simple example of using a single raw PC. It can be instantiated on any cluster; the node will boot the default operating system, which is typically a recent version of Ubuntu.
+"""An example of constructing a profile with a single Xen VM.
 
 Instructions:
-Wait for the profile instance to start, then click on the node in the topology and choose the `shell` menu item. 
+Wait for the profile instance to start, and then log in to the VM via the
+ssh port specified below.  (Note that in this case, you will need to access
+the VM through a high port on the physical host, since we have not requested
+a public IP address for the VM itself.)
 """
 
 # Import the Portal object.
 import geni.portal as portal
-# Import the ProtoGENI library.
-import geni.rspec.pg as pg
-
-# Create a portal context.
-pc = portal.Context()
+import geni.rspec.pg as rspec
 
 # Create a Request object to start building the RSpec.
-request = pc.makeRequestRSpec()
+request = portal.context.makeRequestRSpec()
  
-# Add a raw PC to the request.
-node = request.RawPC("node")
+# Add a XenVM (named "node") to the request
+node = request.XenVM("node")
 
-# Install and execute a script that is contained in the repository.
-node.addService(pg.Execute(shell="sh", command="/local/repository/silly.sh"))
-
-# Print the RSpec to the enclosing page.
-pc.printRequestRSpec(request)
+# Write the request in RSpec format
+portal.context.printRequestRSpec()
