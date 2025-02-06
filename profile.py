@@ -1,35 +1,37 @@
-"""An example of constructing a profile with a single Xen VM.
+"""An example of constructing a profile with node IP addresses specified
+manually.
 
 Instructions:
-Wait for the profile instance to start, and then log in to the VM via the
-ssh port specified below.  (Note that in this case, you will need to access
-the VM through a high port on the physical host, since we have not requested
-a public IP address for the VM itself.)
+Wait for the profile instance to start, and then log in to either VM via the
+ssh ports specified below.  (Note that even though the EXPERIMENTAL
+data plane interfaces will use the addresses given in the profile, you
+will still connect over the control plane interfaces using addresses
+given by the testbed.  The data plane addresses are for intra-experiment
+communication only.)
 """
 
 import geni.portal as portal
 import geni.rspec.pg as rspec
 
-# Create a Request object to start building the RSpec.
 request = portal.context.makeRequestRSpec()
- 
-# Create a XenVM
-node = request.XenVM("node")
 
-# Ask for two cores
-node.cores = 2
-# Ask for 2GB of ram
-node.ram   = 2048
-# Add an extra 8GB of space on the primary disk.
-# NOTE: Use fdisk, the extra space is in the 4th DOS partition,
-#       you will need to create a filesystem and mount it. 
-node.disk  = 8
+node1 = request.XenVM("node1")
+iface1 = node1.addInterface("if1")
 
-# Alternate method; request an ephemeral blockstore mounted at /mydata. 
-# NOTE: Comment out the above line (node.disk) if you do it this way. 
-#bs = node.Blockstore("bs", "/mydata")
-#bs.size = "8GB"
-#bs.placement = "nonsysvol"
+# Specify the component id and the IPv4 address
+iface1.component_id = "eth1"
+iface1.addAddress(rspec.IPv4Address("192.168.1.1", "255.255.255.0"))
 
-# Print the RSpec to the enclosing page.
+node2 = request.XenVM("node2")
+iface2 = node2.addInterface("if2")
+
+# Specify the component id and the IPv4 address
+iface2.component_id = "eth2"
+iface2.addAddress(rspec.IPv4Address("192.168.1.2", "255.255.255.0"))
+
+link = request.LAN("lan")
+
+link.addInterface(iface1)
+link.addInterface(iface2)
+
 portal.context.printRequestRSpec()
