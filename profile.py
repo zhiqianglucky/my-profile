@@ -1,37 +1,27 @@
-"""An example of constructing a profile with node IP addresses specified
-manually.
+#!/usr/bin/python
+
+"""
+An example of a profile including RF links.
 
 Instructions:
-Wait for the profile instance to start, and then log in to either VM via the
-ssh ports specified below.  (Note that even though the EXPERIMENTAL
-data plane interfaces will use the addresses given in the profile, you
-will still connect over the control plane interfaces using addresses
-given by the testbed.  The data plane addresses are for intra-experiment
-communication only.)
+This is an example profile to demonstrate the description of RF links.
+It is not particularly useful to instantiate directly.
 """
 
 import geni.portal as portal
 import geni.rspec.pg as rspec
+import geni.rspec.emulab.pnext as pn
 
 request = portal.context.makeRequestRSpec()
 
-node1 = request.XenVM("node1")
-iface1 = node1.addInterface("if1")
+node0 = request.RawPC( "node0" )
+iface0 = node0.addInterface( "rf0" )
 
-# Specify the component id and the IPv4 address
-iface1.component_id = "eth1"
-iface1.addAddress(rspec.IPv4Address("192.168.1.1", "255.255.255.0"))
+node1 = request.RawPC( "node1" )
+iface1 = node1.addInterface( "rf1" )
 
-node2 = request.XenVM("node2")
-iface2 = node2.addInterface("if2")
-
-# Specify the component id and the IPv4 address
-iface2.component_id = "eth2"
-iface2.addAddress(rspec.IPv4Address("192.168.1.2", "255.255.255.0"))
-
-link = request.LAN("lan")
-
-link.addInterface(iface1)
-link.addInterface(iface2)
+rflink = request.RFLink( "rflink" )
+rflink.addInterface( iface0 )
+rflink.addInterface( iface1 )
 
 portal.context.printRequestRSpec()
